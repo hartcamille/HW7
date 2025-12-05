@@ -1,6 +1,6 @@
 /******************************************************************
  *
- *   YOUR NAME / SECTION NUMBER
+ *   CAMILLE HART - COMP 272 002
  *
  *   This java file contains the problem solutions for the methods selectionSort,
  *   mergeSortDivisibleByKFirst, asteroidsDestroyed, and numRescueCanoes methods.
@@ -37,11 +37,23 @@ public class ProblemSolutions {
         int n = values.length;
 
         for (int i = 0; i < n - 1; i++) {
-
-            // YOU CODE GOES HERE -- COMPLETE THE INNER LOOP OF THIS
-            // "SELECTION SORT" ALGORITHM.
-            // DO NOT FORGET TO ADD YOUR NAME / SECTION ABOVE
-
+         int bestIndex = i;  // pick starting point; assume this is the smallest/largest
+            for (int j = i + 1; j < n; j++) { // look through the rest of the array
+                if (ascending) { // if sorting ascending: look for smaller numbers
+                    if (values[j] < values[bestIndex]) {
+                        bestIndex = j; // found new smallest
+                    }
+                } else { // descending: look for bigger numbers
+                    if (values[j] > values[bestIndex]) {
+                        bestIndex = j; // found a new biggest
+                    }
+                }
+            }
+            if (bestIndex != i) { // if better index was found: swap it with the current spot
+                int temp = values[i];
+                values[i] = values[bestIndex];
+                values[bestIndex] = temp;
+            }
         }
 
     } // End class selectionSort
@@ -91,17 +103,46 @@ public class ProblemSolutions {
      */
 
     private void mergeDivisbleByKFirst(int arr[], int k, int left, int mid, int right)
-    {
-        // YOUR CODE GOES HERE, THIS METHOD IS NO MORE THAN THE STANDARD MERGE PORTION
-        // OF A MERGESORT, EXCEPT THE NUMBERS DIVISIBLE BY K MUST GO FIRST WITHIN THE
-        // SEQUENCE PER THE DISCUSSION IN THE PROLOGUE ABOVE.
-        //
-        // NOTE: YOU CAN PROGRAM THIS WITH A SPACE COMPLEXITY OF O(1) OR O(N LOG N).
-        // AGAIN, THIS IS REFERRING TO SPACE COMPLEXITY. O(1) IS IN-PLACE, O(N LOG N)
-        // ALLOCATES AUXILIARY DATA STRUCTURES (TEMPORARY ARRAYS). IT WILL BE EASIER
-        // TO CODE WITH A SPACE COMPLEXITY OF O(N LOG N), WHICH IS FINE FOR PURPOSES
-        // OF THIS PROGRAMMING EXERCISES.
+    { 
+        // collect everything divisible by k first (keep their order)
+        // collect everything else
+        // sort the non-divisible numbers
+        // divisible first, then sorted non-divisible
+        int[] div = new int[right - left + 1]; // holds divisible items
+        int[] non = new int[right - left + 1]; // holds non-divisible
+        int divCount = 0;
+        int nonCount = 0;
 
+         // left half divisible
+        for (int i = left; i <= mid; i++) {
+            if (arr[i] % k == 0)
+                div[divCount++] = arr[i];
+        }
+        
+         // right half divisible
+        for (int i = mid + 1; i <= right; i++) {
+            if (arr[i] % k == 0)
+                div[divCount++] = arr[i];
+        }
+        
+        // collect non-divisible from both halves
+        for (int i = left; i <= right; i++) {
+            if (arr[i] % k != 0)
+                non[nonCount++] = arr[i];
+        }
+
+        Arrays.sort(non, 0, nonCount);  // sort the non-divisible numbers
+
+        int idx = left; // write everything back
+
+        // divisible chunk first
+        for (int i = 0; i < divCount; i++) {
+            arr[idx++] = div[i];
+        }
+        // then sorted non-divisible
+        for (int i = 0; i < nonCount; i++) {
+            arr[idx++] = non[i];
+        }
         return;
 
     }
@@ -154,10 +195,20 @@ public class ProblemSolutions {
 
     public static boolean asteroidsDestroyed(int mass, int[] asteroids) {
 
-        // YOUR CODE GOES HERE, CONSIDER USING ARRAYS.SORT()
+        // sort asteroids from smallest to biggest
+        // get whatever you can
+        // if hit one too big, bad
+        
+         Arrays.sort(asteroids);
+        long planetMass = mass; // long so it doesn't overflow
 
-        return false;
-
+        for (int a : asteroids) {
+            if (planetMass < a) {
+                return false; // planet dies here
+            }
+            planetMass += a; // planet gets stronger
+        }
+        return true; // survived all asteroids!
     }
 
 
@@ -192,10 +243,40 @@ public class ProblemSolutions {
 
     public static int numRescueSleds(int[] people, int limit) {
 
-        // YOUR CODE GOES HERE, CONSIDER USING ARRAYS.SORT
+        // sort people
+        // pair lightest with the heaviest if possible
+        // otherwise send the heaviest alone
+        // two-pointer solution
+        
+         if (people.length == 0)
+            return 0;
 
-        return -1;
+        Arrays.sort(people);
 
+        int i = 0; // lightest person
+        int j = people.length - 1; // heaviest person
+        int sleds = 0;
+
+        while (i <= j) {
+
+             // only one person left
+            if (i == j) {
+                sleds++;
+                break;
+            }
+
+             // try pairing lightest with heaviest
+            if (people[i] + people[j] <= limit) {
+                i++; // paired, move lightest pointer
+                j--; // move heaviest pointer
+            } else {
+                j--;  // heaviest goes alone
+            }
+
+            sleds++; // used a sled
+        }
+
+        return sleds;
     }
 
 } // End Class ProblemSolutions
